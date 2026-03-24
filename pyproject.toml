@@ -12,6 +12,7 @@ dependencies = [
     "insightface>=0.7",
     "onnxruntime-gpu>=1.16",
     "tqdm>=4.65",
+    "pynvml>=13.0.1",
 ]
 
 [project.scripts]

@@ -53,6 +53,20 @@ def build_parser() -> argparse.ArgumentParser:
     det.add_argument("--device", choices=["cuda", "cpu"], default="cuda")
     det.add_argument("--model-dir", default="models")
 
+    # -- benchmark --
+    bench = subparsers.add_parser("benchmark", help="Benchmark throughput and VRAM per tracker")
+    bench.add_argument("--input", required=True, help="Input video path")
+    bench.add_argument(
+        "--trackers",
+        default="sort,deepsort,strongsort",
+        help="Comma-separated list of trackers",
+    )
+    bench.add_argument("--max-frames", type=int, default=None, help="Limit frames (default: all)")
+    bench.add_argument("--conf-threshold", type=float, default=0.5)
+    bench.add_argument("--blur-kernel", type=int, default=99)
+    bench.add_argument("--device", choices=["cuda", "cpu"], default="cuda")
+    bench.add_argument("--model-dir", default="models")
+
     return parser
 
 
@@ -163,6 +177,38 @@ def cmd_detect(args: argparse.Namespace) -> None:
     print(f"Done: saved to {args.output}")
 
 
+def cmd_benchmark(args: argparse.Namespace) -> None:
+    from .benchmark import benchmark_tracker, print_benchmark_table
+    from .detector import FaceDetector
+    from .trackers import create_tracker
+
+    tracker_names = [t.strip() for t in args.trackers.split(",")]
+    results = []
+
+    for tracker_name in tracker_names:
+        tracker = create_tracker(tracker_name)
+        needs_emb = tracker.needs_embeddings
+
+        print(f"\nInitializing detector for {tracker.name} (embeddings={'yes' if needs_emb else 'no'})...")
+        detector = FaceDetector(
+            extract_embeddings=needs_emb,
+            conf_threshold=args.conf_threshold,
+            device=args.device,
+            model_dir=args.model_dir,
+        )
+
+        result = benchmark_tracker(
+            detector=detector,
+            tracker=tracker,
+            input_path=args.input,
+            blur_kernel=args.blur_kernel,
+            max_frames=args.max_frames,
+        )
+        results.append(result)
+
+    print_benchmark_table(results, args.device)
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
@@ -171,6 +217,7 @@ def main() -> None:
         "process": cmd_process,
         "compare": cmd_compare,
         "detect": cmd_detect,
+        "benchmark": cmd_benchmark,
     }
     commands[args.command](args)
 
