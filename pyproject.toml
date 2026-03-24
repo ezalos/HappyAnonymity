@@ -1,0 +1,18 @@
+[project]
+name = "happyanonymity"
+version = "0.1.0"
+description = "Video face anonymization system comparing SORT, DeepSORT, and StrongSORT trackers"
+requires-python = ">=3.10"
+dependencies = [
+    "opencv-python-headless>=4.8",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "filterpy>=1.4",
+    "lap>=0.4",
+    "insightface>=0.7",
+    "onnxruntime-gpu>=1.16",
+    "tqdm>=4.65",
+]
+
+[project.scripts]
+happyanon = "src.cli:main"

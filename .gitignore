@@ -1,0 +1,27 @@
+# ABOUTME: Git ignore rules for the HappyAnonymity project
+# ABOUTME: Excludes outputs, models, Python artifacts, and IDE files
+
+# Output videos
+data/output/
+
+# Model weights
+models/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

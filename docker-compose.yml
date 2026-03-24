@@ -1,0 +1,17 @@
+# ABOUTME: Docker Compose configuration for HappyAnonymity
+# ABOUTME: Provides NVIDIA GPU access and mounts data/models volumes
+
+services:
+  anonymize:
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    entrypoint: ["uv", "run", "python", "-m", "src.cli"]
